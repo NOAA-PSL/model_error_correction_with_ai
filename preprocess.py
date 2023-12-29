@@ -27,7 +27,7 @@ def preprocess():
     
     date_in=[] # container for time info
     for date in dates:
-        date_j = date.to_julian_date() # convert to julian date format
+        date_j = date.to_julian_date()-pd.Timestamp(date.year,1,1,0,0,0).to_julian_date() # convert to julian date format
         time_sin = [np.sin(date_j*2*np.pi/period) for period in time_scales] #25,26 # sine wave with frequencies in time_scales
         time_cos = [np.cos(date_j*2*np.pi/period) for period in time_scales] #27,28 # cosine wave with frequencies in time_scales
         time_h_m = [date.hour, date.month] #29,30 # raw hour and month info
