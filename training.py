@@ -27,7 +27,7 @@ torch.set_num_threads(int(os.cpu_count()/2))
 
 # dataset location
 dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'
-ddd=dataDir+'npys_sergey3/ifs'                            
+ddd=dataDir+'npys_sergey3_newjd/ifs'                            
 
 # Define training functions and utilities
 def Train_CONV2D(param_list):
