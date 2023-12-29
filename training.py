@@ -354,7 +354,7 @@ def check_gpu(rank):
 
 def get_time(date):
     # Prepare normalized Time input
-    date_j = date.to_julian_date()
+    date_j = date.to_julian_date()-pd.Timestamp(date.year,1,1,0,0,0).to_julian_date() # convert to julian date format
     time_scales= [1, 365]
     time_sin = [np.sin(date_j*2*np.pi/period)*2.83/2 for period in time_scales] #25,26
     time_cos = [np.cos(date_j*2*np.pi/period)*2.83/2 for period in time_scales] #27,28
