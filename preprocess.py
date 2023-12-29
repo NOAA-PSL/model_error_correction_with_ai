@@ -13,7 +13,7 @@ ATM=True
 NORMALIZE=True
 
 dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'   # directory for input data
-npyDir=dataDir+'npys_sergey3/ifs'                            # output directory
+npyDir=dataDir+'npys_sergey_static/ifs'                            # output directory
 
 def preprocess():
     '''preprocess the replay dataset from the nc files of reduced dataset into numpy arrays'''
@@ -21,7 +21,7 @@ def preprocess():
     time_scales=[1,365]                                                   # include hour of the day and day of the year info
     vars_in=['tmp','ugrd','vgrd','spfh','pressfc']                        # input forecast variables
     vars_out=['tmp','ugrd','vgrd','spfh','pressfc']                        # output variables
-    sfc_vars=['csdlf','csdsf','csulf','csulftoa','csusf','csusftoa','land'] # boundary condition variables from surface file
+    sfc_vars=['csdsf','orog','land'] # boundary condition variables from surface file
 
     dates = [d for d in pd.date_range('2018-01-01T00', '2020-12-31T12', freq='6H')]     # preprocess data range
     
@@ -47,7 +47,7 @@ def preprocess():
     nlevs  = len(sample.pfull)
     
     sfc_size    = len(sfc_vars)+2+2+6    # lon, lat, lon_sin, lon_cos, time6
-    varin_size  = nlevs*4+1+sfc_size     
+    varin_size  = sfc_size     
     varout_size = nlevs*4+1 
     
     print(f"nlat={nlat}, nlon={nlon}")
@@ -102,7 +102,7 @@ def preprocess():
                         val_f = np.cumsum(np.concatenate([val_f, np.zeros((1,nlat,nlon))],axis=0)[::-1],axis=1)[::-1]
                         val_f = -(val_f[1:] + val_f[:-1])/2 + file_f.pressfc.values # add surface pressure to get full pressure for each level
 
-                    vals_f.append(val_f)
+                    #vals_f.append(val_f)
                 for var in sfc_vars:
                     vals_f.append(file[var].values) # shape(1,32,64) # collect all variables in sfc_vars
                 vals_f.append(lons_m[None,]) #21 # raw lon
