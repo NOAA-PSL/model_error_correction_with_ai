@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import copy
 from time import time
 from glob import glob
 from joblib import Parallel, delayed
@@ -435,6 +436,21 @@ def my_eval_model(model, test_Loader):
     for X, y in test_Loader:
       y_pred = model(X)
   return y_pred, y
+
+def eval_model_batch(model, test_Loader, device):
+  y_pred = torch.zeros(test_Loader.dataset.out.shape)
+  y = torch.zeros(test_Loader.dataset.out.shape)
+  bs = test_Loader.batch_size
+  with torch.set_grad_enabled(False):
+    model.eval()
+    for batch_id, (X_, y_) in enumerate(test_Loader):
+        X_.to(device)
+        y_pred_ = model(X_)
+        y[batch_id*bs:batch_id*bs+y_.shape[0],:,:,:]=copy.deepcopy(y_)
+        y_pred[batch_id*bs:batch_id*bs+y_.shape[0],:,:,:]=copy.deepcopy(y_pred_)
+  return y_pred, y
+
+
 
 def compute_skill(y, y_pred):
    y_pred_ts=y_pred.cpu().detach().numpy().view().reshape((y.shape[0], np.prod(y.shape[1:])))

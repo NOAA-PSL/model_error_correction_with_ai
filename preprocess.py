@@ -12,8 +12,8 @@ import numpy as np
 ATM=True
 NORMALIZE=True
 
-dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'   # directory for input data
-npyDir=dataDir+'npys_sergey3/ifs'                            # output directory
+dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/SUB8/'   # directory for input data
+npyDir=dataDir+'../'+'npys_sergey_10years/ifs'                   # output directory
 
 def preprocess():
     '''preprocess the replay dataset from the nc files of reduced dataset into numpy arrays'''
@@ -23,7 +23,7 @@ def preprocess():
     vars_out=['tmp','ugrd','vgrd','spfh','pressfc']                        # output variables
     sfc_vars=['csdlf','csdsf','csulf','csulftoa','csusf','csusftoa','land'] # boundary condition variables from surface file
 
-    dates = [d for d in pd.date_range('2018-01-01T00', '2020-12-31T12', freq='6H')]     # preprocess data range
+    dates = [d for d in pd.date_range('2010-01-01T00', '2020-12-31T12', freq='6H')]     # preprocess data range
     
     date_in=[] # container for time info
     for date in dates:
@@ -35,7 +35,7 @@ def preprocess():
     date_in = np.array(date_in, dtype=np.float32)
 
     # get latlon info from a sample data
-    sample = xr.open_dataset(dataDir+'/2019122000/sfg_2019122000_fhr06_control_sub')
+    sample = xr.open_dataset(dataDir+'/2019122000/sfg_2019122000_fhr06_control_sub8')
     lons_d = sample.grid_xt
     lats_d = sample.grid_yt
     lons_m, lats_m = np.meshgrid(lons_d, lats_d) # get raw gridded lat and lon
@@ -73,12 +73,18 @@ def preprocess():
           inc_sub_mean = np.zeros((varout_size,), dtype=np.float32)
           inc_sub_std  = np.ones((varout_size,), dtype=np.float32)
 
+    def try_write(index_d, date):
+        try:
+            write(index_d, date)
+        except:
+            print('Missing files for: {}'.format(date))
+
     def write(index_d, date):
         '''writing data into the numpy array files'''
         print(date)
         YYYYMMDDHH = date.strftime('%Y%m%d%H') # current datetime
         PYYYYMMDDHH = (date + pd.Timedelta('6H')).strftime('%Y%m%d%H') # current datetime + 6h
-        for suf, f06, inc in zip(['sub'],[f06_sub],[inc_sub]): # loop through sub (subsampled)
+        for suf, f06, inc in zip(['sub8'],[f06_sub],[inc_sub]): # loop through sub (subsampled)
                 vals_f = []
                 vals_i = []
                 file_f = xr.open_dataset('{}/{}/sfg_{}_fhr06_control_{}'.format(dataDir,YYYYMMDDHH,YYYYMMDDHH,suf)) # read forecast file
@@ -115,7 +121,7 @@ def preprocess():
                 inc[index_d] = (np.concatenate(vals_i, axis=0) - inc_sub_mean[:,None,None])/inc_sub_std[:,None,None] # stack up all variables for each date
 
             
-    Parallel(n_jobs=40,verbose=0)(delayed(write)(i,d) for i,d in enumerate(dates)) # run write in threadded parallel
+    Parallel(n_jobs=40,verbose=0)(delayed(try_write)(i,d) for i,d in enumerate(dates)) # run write in threadded parallel
 #   write(0,dates[0])
 #   for i,d in enumerate(dates):write(i,d)
 
