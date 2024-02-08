@@ -13,7 +13,7 @@ ATM=True
 NORMALIZE=True
 
 dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/SUB8/'   # directory for input data
-npyDir=dataDir+'../'+'npys_sergey_10years/ifs'                   # output directory
+npyDir=dataDir+'../'+'npys_sergey_10years_newjd/ifs'                   # output directory
 
 def preprocess():
     '''preprocess the replay dataset from the nc files of reduced dataset into numpy arrays'''
@@ -27,7 +27,7 @@ def preprocess():
     
     date_in=[] # container for time info
     for date in dates:
-        date_j = date.to_julian_date() # convert to julian date format
+        date_j = date.to_julian_date()-pd.Timestamp(date.year,1,1,0,0,0).to_julian_date() # convert to julian date format
         time_sin = [np.sin(date_j*2*np.pi/period) for period in time_scales] #25,26 # sine wave with frequencies in time_scales
         time_cos = [np.cos(date_j*2*np.pi/period) for period in time_scales] #27,28 # cosine wave with frequencies in time_scales
         time_h_m = [date.hour, date.month] #29,30 # raw hour and month info
