@@ -177,7 +177,8 @@ def model_to_nc(filename, if_return_nc=False, if_norm=True, ddd='./'):
       elif hyperparam['vars_out'] == 'q':
         slice_out = slice(127*3,127*4)
 
-      ddd = '/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/npys_sergey3_newjd/'
+      #ddd = '/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/npys_sergey3_newjd/'
+      ddd = '/scratch2/BMC/gsienkf/Sergey.Frolov/fromLaura/'+'npys_2year_newjd/ifs'
       mean_in = np.load(ddd+'ifs_f06_ranl_sub_mean_1d.npy')
       std_in  = np.load(ddd+'ifs_f06_ranl_sub_std_1d.npy')
       mean_out = np.load(ddd+'ifs_out_ranl_sub_mean_1d.npy')[slice_out]

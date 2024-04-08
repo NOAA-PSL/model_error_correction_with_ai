@@ -1,7 +1,8 @@
 import numpy as np
 
-dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'   # directory for input data
-npyDir=dataDir+'npys_sergey_10years_newjd/ifs'              # output directory
+#dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'   # directory for input data
+#npyDir=dataDir+'npys_sergey_10years_newjd/ifs'              # output directory
+npyDir='/scratch2/BMC/gsienkf/Laura.Slivinski/model_error_corr_work/npys_1year_newjd/ifs_'
 
 for i in ['f06_ranl_sub','out_ranl_sub']:
     file = npyDir+i

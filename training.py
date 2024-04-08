@@ -26,8 +26,8 @@ from model import CONV2D
 torch.set_num_threads(int(os.cpu_count()/2))
 
 # dataset location
-dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'
-ddd=dataDir+'npys_sergey_10years_newjd/ifs'
+ddd = '/scratch2/BMC/gsienkf/Sergey.Frolov/fromLaura/'+'npys_2year_newjd/ifs'
+
 
 # Define training functions and utilities
 def Train_CONV2D(param_list):

@@ -12,8 +12,10 @@ import numpy as np
 ATM=True
 NORMALIZE=True
 
-dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/SUB8/'   # directory for input data
-npyDir=dataDir+'../'+'npys_sergey_10years_newjd/ifs'                   # output directory
+#dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/SUB8/'   # directory for input data
+#npyDir=dataDir+'../'+'npys_sergey_10years_newjd/ifs'                   # output directory
+dataDir='/scratch2/BMC/gsienkf/Laura.Slivinski/model_error_corr_work/subsample/'   # directory for input data
+npyDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromLaura/'+'npys_2year_newjd/ifs'                   # output directory
 
 def preprocess():
     '''preprocess the replay dataset from the nc files of reduced dataset into numpy arrays'''
@@ -23,7 +25,7 @@ def preprocess():
     vars_out=['tmp','ugrd','vgrd','spfh','pressfc']                        # output variables
     sfc_vars=['csdlf','csdsf','csulf','csulftoa','csusf','csusftoa','land'] # boundary condition variables from surface file
 
-    dates = [d for d in pd.date_range('2010-01-01T00', '2020-12-31T12', freq='6H')]     # preprocess data range
+    dates = [d for d in pd.date_range('2021-01-02T00', '2022-12-31T18', freq='6H')]     # preprocess data range
     
     date_in=[] # container for time info
     for date in dates:
@@ -35,7 +37,7 @@ def preprocess():
     date_in = np.array(date_in, dtype=np.float32)
 
     # get latlon info from a sample data
-    sample = xr.open_dataset(dataDir+'/2019122000/sfg_2019122000_fhr06_control_sub8')
+    sample = xr.open_dataset(dataDir+'/2021122000/sfg_2021122000_fhr06_control_sub8')
     lons_d = sample.grid_xt
     lats_d = sample.grid_yt
     lons_m, lats_m = np.meshgrid(lons_d, lats_d) # get raw gridded lat and lon
@@ -83,12 +85,13 @@ def preprocess():
         '''writing data into the numpy array files'''
         print(date)
         YYYYMMDDHH = date.strftime('%Y%m%d%H') # current datetime
-        PYYYYMMDDHH = (date + pd.Timedelta('6H')).strftime('%Y%m%d%H') # current datetime + 6h
+        #PYYYYMMDDHH = (date + pd.Timedelta('6H')).strftime('%Y%m%d%H') # current datetime + 6h
         for suf, f06, inc in zip(['sub8'],[f06_sub],[inc_sub]): # loop through sub (subsampled)
                 vals_f = []
                 vals_i = []
                 file_f = xr.open_dataset('{}/{}/sfg_{}_fhr06_control_{}'.format(dataDir,YYYYMMDDHH,YYYYMMDDHH,suf)) # read forecast file
-                file_a = xr.open_dataset('{}/{}/sfg_{}_fhr00_control_{}'.format(dataDir,PYYYYMMDDHH,PYYYYMMDDHH,suf)) # read analysis file
+                #file_a = xr.open_dataset('{}/{}/sfg_{}_fhr00_control_{}'.format(dataDir,PYYYYMMDDHH,PYYYYMMDDHH,suf)) # read analysis file
+                file_a = xr.open_dataset('{}/{}/sanl_{}_fhr06_control_{}'.format(dataDir,YYYYMMDDHH,YYYYMMDDHH,suf)) # read analysis file
                 file = xr.open_dataset('{}/{}/bfg_{}_fhr06_control_{}'.format(dataDir,YYYYMMDDHH,YYYYMMDDHH,suf)) # read boundary condition from file
 
                 for var in vars_in: # loop through the variables

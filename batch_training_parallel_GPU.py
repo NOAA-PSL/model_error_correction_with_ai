@@ -7,11 +7,11 @@ importlib.reload(t)
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-ptmp=[device, 't', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 366,  365, 0.7] #Done 
-ptmp=[device, 'q', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 366,  365, 0.7] #Done 
-ptmp=[device, 'u', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 366,  365, 0.7] #done
-ptmp=[device, 'v', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 366,  365, 0.7] #retrain  now
-ptmp=[device, 'ps', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 366,  365, 0.7] #done
+ptmp=[device, 't', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 363,  364, 0.7] #(rank,vars_out, testset, kernel_sizes, channels, n_conv, p, bs, loss_name, lr, wd, end_of_training_day, training_validation_length_days, tv_ratio)
+ptmp=[device, 'q', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 363,  364, 0.7] 
+ptmp=[device, 'u', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 363,  364, 0.7] 
+ptmp=[device, 'v', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 363,  364, 0.7] 
+ptmp=[device, 'ps', 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., 363,  364, 0.7] 
 
 st = time.time()
 t._train_(*ptmp)
