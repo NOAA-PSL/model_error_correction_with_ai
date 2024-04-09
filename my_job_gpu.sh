@@ -1,11 +1,11 @@
 #!/bin/sh
 #SBATCH --nodes 1
 #SBATCH -A gsienkf
-#SBATCH -p fgewf
-#SBATCH --qos windfall
+#SBATCH -p fge
+#SBATCH --qos gpuwf
 #SBATCH -t 8:0:0
 
-#salloc -t 8:0:0 -A gsienkf -p fgewf --qos=windfall -N 1
+#salloc -t 8:0:0 -A gsienkf -p fge --qos=gpuwf -N 1
 
 $RUNDIR='set-to-something-meaningfull'
 cd $RUNDIR
