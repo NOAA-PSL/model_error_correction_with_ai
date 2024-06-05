@@ -8,22 +8,27 @@ import pandas as pd
 import xarray as xr
 import numpy as np
 
+import argparse
+
 # which components should be processed
 ATM=True
 NORMALIZE=True
 
-dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'   # directory for input data
-npyDir=dataDir+'npys_sergey3/ifs'                            # output directory
+#dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'   # directory for input data
+#npyDir=dataDir+'npys_sergey3/ifs'                            # output directory
 
-def preprocess():
+def preprocess(args):
     '''preprocess the replay dataset from the nc files of reduced dataset into numpy arrays'''
-    
+   
+    dataDir = args.inDir
+    npyDir = args.outputDir
+
     time_scales=[1,365]                                                   # include hour of the day and day of the year info
     vars_in=['tmp','ugrd','vgrd','spfh','pressfc']                        # input forecast variables
     vars_out=['tmp','ugrd','vgrd','spfh','pressfc']                        # output variables
     sfc_vars=['csdlf','csdsf','csulf','csulftoa','csusf','csusftoa','land'] # boundary condition variables from surface file
 
-    dates = [d for d in pd.date_range('2018-01-01T00', '2020-12-31T12', freq='6H')]     # preprocess data range
+    dates = [d for d in pd.date_range(args.start, args.end, freq='6H')]     # preprocess data range
     
     date_in=[] # container for time info
     for date in dates:
@@ -35,7 +40,8 @@ def preprocess():
     date_in = np.array(date_in, dtype=np.float32)
 
     # get latlon info from a sample data
-    sample = xr.open_dataset(dataDir+'/2019122000/sfg_2019122000_fhr06_control_sub')
+    d_=dates[0].strftime('%Y%m%d%H') 
+    sample = xr.open_dataset(dataDir+'/'+d_+'/sfg_'+d_+'_fhr06_control_sub8',engine='netcdf4')
     lons_d = sample.grid_xt
     lats_d = sample.grid_yt
     lons_m, lats_m = np.meshgrid(lons_d, lats_d) # get raw gridded lat and lon
@@ -78,12 +84,12 @@ def preprocess():
         print(date)
         YYYYMMDDHH = date.strftime('%Y%m%d%H') # current datetime
         PYYYYMMDDHH = (date + pd.Timedelta('6H')).strftime('%Y%m%d%H') # current datetime + 6h
-        for suf, f06, inc in zip(['sub'],[f06_sub],[inc_sub]): # loop through sub (subsampled)
+        for suf, f06, inc in zip(['sub8'],[f06_sub],[inc_sub]): # loop through sub (subsampled)
                 vals_f = []
                 vals_i = []
-                file_f = xr.open_dataset('{}/{}/sfg_{}_fhr06_control_{}'.format(dataDir,YYYYMMDDHH,YYYYMMDDHH,suf)) # read forecast file
-                file_a = xr.open_dataset('{}/{}/sfg_{}_fhr00_control_{}'.format(dataDir,PYYYYMMDDHH,PYYYYMMDDHH,suf)) # read analysis file
-                file = xr.open_dataset('{}/{}/bfg_{}_fhr06_control_{}'.format(dataDir,YYYYMMDDHH,YYYYMMDDHH,suf)) # read boundary condition from file
+                file_f = xr.open_dataset('{}/{}/sfg_{}_fhr06_control_{}'.format(dataDir,YYYYMMDDHH,YYYYMMDDHH,suf),engine='netcdf4') # read forecast file
+                file_a = xr.open_dataset('{}/{}/sanl_{}_fhr06_control_{}'.format(dataDir,YYYYMMDDHH,YYYYMMDDHH,suf),engine='netcdf4') # read analysis file
+                file = xr.open_dataset('{}/{}/bfg_{}_fhr06_control_{}'.format(dataDir,YYYYMMDDHH,YYYYMMDDHH,suf),engine='netcdf4') # read boundary condition from file
 
                 for var in vars_in: # loop through the variables
                     val_f = file_f[var].values[0]
@@ -115,10 +121,24 @@ def preprocess():
                 inc[index_d] = (np.concatenate(vals_i, axis=0) - inc_sub_mean[:,None,None])/inc_sub_std[:,None,None] # stack up all variables for each date
 
             
-    Parallel(n_jobs=40,verbose=0)(delayed(write)(i,d) for i,d in enumerate(dates)) # run write in threadded parallel
+    Parallel(n_jobs=args.nJobs, verbose=0)(delayed(write)(i,d) for i,d in enumerate(dates)) # run write in threadded parallel
 #   write(0,dates[0])
 #   for i,d in enumerate(dates):write(i,d)
 
 ######################################################################################
-preprocess()      # run the main program
+## MAIN START ##
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="Pre-process netcdf files")
+
+    parser.add_argument("-s", dest="start", help="start date yyyy-mm-dd-Thh")
+    parser.add_argument("-e", dest="end", help="end date yyyy-mm-dd-Thh")
+    parser.add_argument("-i", dest="inDir", help="input directory")
+    parser.add_argument("-o", dest="outputDir", help="output directory")
+    parser.add_argument("-n", dest="nJobs", default=1, type=int, help="number of parallel jobs")
+
+    args = parser.parse_args()
+
+    print(args)
+    preprocess(args)      # run the main program
    

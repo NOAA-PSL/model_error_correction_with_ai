@@ -26,8 +26,9 @@ from model import CONV2D
 torch.set_num_threads(int(os.cpu_count()/2))
 
 # dataset location
-dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'
-ddd=dataDir+'npys_sergey3/ifs'                            
+#dataDir='/scratch2/BMC/gsienkf/Sergey.Frolov/fromStefan/'
+#ddd=dataDir+'npys_sergey3/ifs'
+ddd=''
 
 # Define training functions and utilities
 def Train_CONV2D(param_list):
@@ -45,18 +46,21 @@ def Train_CONV2D(param_list):
 def _train_(rank,
             vars_out, testset, kernel_sizes, 
             channels, n_conv, p, bs, loss_name, lr, wd, 
-            end_of_training_day, training_validation_length_days, tv_ratio):
+            end_of_training_day, training_validation_length_days, tv_ratio, rdir):
     '''Run individual training task. Called by Train_CONV2D'''
-    
+  
     params = locals() # get local variables i.e. the input parameters 
     logging.info("rank: {} {}".format(rank, params))
     naming = ''
-    for k in [key for key,val in params.items()][1:]:
+    for k in [key for key,val in params.items()][1:-1]:
         naming += '_'+str(params[k]) # concat the input parameters into a string
 
     checkfile = './checks/conv2d'+naming # filename for training checkpoints
     logging.info("rank: {}, check file: {}".format(rank, checkfile))
     
+    global ddd
+    ddd=rdir
+
     ######################################################################    
     # Train_Valid DATASET
     # define the training and validation index range (indp test range defined in check_model)
@@ -162,7 +166,7 @@ def _train_(rank,
     model_0.to(rank)
 
     max_epoches = 150 # maximum training epoches before forced termination
-    patience = 10     # maximum number of consecutive epoches that does not decrease the valid loss (for early stopping)
+    patience = 5      # maximum number of consecutive epoches that does not decrease the valid loss (for early stopping)
     
     
     ######################################################################    
@@ -387,8 +391,11 @@ def dataset_to_tensor_list(file):
     return vals
 def reset_network(old_name,new_name,rank=''):
   # read old checkpoint, reset training hsitory to scratch
-  print(f"reading {old_name}")
-  model = torch.load(old_name)
+  print(f"reading {old_name}") 
+  if ~torch.cuda.is_available():
+     model = torch.load(old_name,map_location=torch.device('cpu'))
+  else:
+      model = torch.load(old_name)
   print(f"reseting to {new_name}")
   _checkpoint_(rank=0, checkfile=new_name, best_model=model['model_state_dict'], best_optim=[], epoch=0,
               train_losses=[], valid_losses=[], impatience=0, max_time=0)
