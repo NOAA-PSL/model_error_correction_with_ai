@@ -42,7 +42,6 @@ if __name__ == "__main__":
         ptmp=[device, args.vname, 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., ndays,  ndays, 0.7, args.outputDir]
 
         #reset pre-trained network if available
-        breakpoint()
         if (os.path.exists(args.nnBefore)) :
             fn_this = t.create_checkpoint_filename(ptmp[1:-1])
             t.reset_network(args.nnBefore, fn_this)
