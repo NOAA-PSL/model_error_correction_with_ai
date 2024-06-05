@@ -39,7 +39,7 @@ if __name__ == "__main__":
     elif args.mode=='train':
         #train
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        ptmp=[device, args.vname, 4, '1', '4096', 3, 0.25, 32, 'mse', 0.0001, 1., ndays,  ndays, 0.7, args.outputDir]
+        ptmp=[device, args.vname, 4, '1', '4096', 3, 0.25, 32,  'wnew', 0.0001, 1e-5, ndays,  ndays, 0.7, args.outputDir]
 
         #reset pre-trained network if available
         if (os.path.exists(args.nnBefore)) :
